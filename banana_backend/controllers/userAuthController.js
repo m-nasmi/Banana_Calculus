@@ -119,12 +119,29 @@ export const getTopScores = async (req, res) => {
 };
 
 export const deleteAccount = async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const deletedUser = await User.findByIdAndDelete(userId);
-        if (!deletedUser) return res.status(404).json({ message: 'User not found' });
-        res.json({ message: 'Account deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error deleting account' });
-    }
+  try {
+      console.log("Request received for user deletion:", req.user);
+
+      
+      if (!req.user || !req.user.id) {
+          console.error("User ID not found in request");
+          return res.status(400).json({ message: "User ID missing in request" });
+      }
+
+      const userId = req.user.id;
+      console.log("Attempting to delete user with ID:", userId);
+
+      const deletedUser = await UserModel.findByIdAndDelete(userId);
+
+      if (!deletedUser) {
+          console.error("User not found for deletion:", userId);
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      console.log("User deleted successfully:", deletedUser);
+      res.json({ message: "Account deleted successfully" });
+  } catch (error) {
+      console.error("Error in deleteAccount function:", error);
+      res.status(500).json({ message: "Error deleting account", error: error.message });
+  }
 };
